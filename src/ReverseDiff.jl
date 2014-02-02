@@ -33,6 +33,7 @@ diff(dval, c::Call{Nothing}) = begin
     c.computed_diff=true
     c.dval = dval
 end
+diff(dval, val) = nothing
 
 macro d(f, ds...)
     eval(parse("import Base.$f"))
@@ -69,8 +70,18 @@ d(f::Symbol, dx, dy) =
 @d(-, d, -d)
 @d(*, d*y', x'*d)
 @d(dot, d*y, d*x)
-#@d(x/y, y'*d, x'*d)
+@d(det, d*det(x)*inv(x)')
+@d(trace, d*eye(size(x)...))
+
+#Guess
+#@d(/, y'\d, x'*d)
+#Fails test
+@d(\, -d*y', x'\d)
+#Ok
 @d(exp, d.*exp(x))
 @d(sin, d.*cos(x))
 @d(cos, -d.*sin(x))
+@d(ctranspose, ctranspose(d))
+@d(vec, reshape(d, size(x)...))
+@d(sum, d*ones(size(x)))
 end
