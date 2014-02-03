@@ -42,4 +42,4 @@ You can provide define new definitions using the macro `@d`, for instance, to re
 ReverseDiff.@d(*, d*y', x'*d)
 ```
 Where `x` is the first argument to the function, `y` is the second argument, and `d` is the differential of the objective with respect to the result of the function call.
-Note that `ReverseDiff.@d`, like `testdiff` is only implemented for one and two argument functions, though ``reversediff` works with any number of arguments.
+Note that `ReverseDiff.@d`, like `testdiff` is only implemented for one and two argument functions, though `reversediff` works with any number of arguments.
