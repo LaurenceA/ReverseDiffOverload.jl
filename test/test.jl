@@ -58,6 +58,7 @@ end
 
         
 gentest(a -> a+a*exp(a), 2.)
+gentest((a, b) -> first(b'*a*b), [1. 2;3 4], [5.,6]'')
 gentest(+, 1., 2.)
 gentest((a, b) -> dot([1.1, 1.3], a+b), ones(2), 2*ones(2))
 gentest(*, 3., 4.)
@@ -68,6 +69,7 @@ gentest(trace, [1. 2;3 4])
 gentest((a, b) -> dot([1.1, 1.3], a\b), [1. 2;3 4], [5.,6])
 gentest((a, b) -> dot([1.1, 1.3], vec(a/b)), [5. 6], [1. 2;3 4])
 gentest((a, b) -> dot([1.1, 1.3], a'*b), [1. 2;3 4], [5.,6])
+gentest(a -> det(inv(a)), [1. 2;3 4])
 gentest(sum, [1., 2., 3.])
 gentest(a -> dot([1.1, 2.1], vec(a)), [5. 6])
 gentest((a, b) -> sum(a*b), [5. 6], [1. 2;3 4])
