@@ -20,12 +20,13 @@ testdiff("dot(x, y)", [1., 2.], [3., 4.])
 
 #+
 testdiff("x+y", 1., 2.)
-testdiff("dot(v1, x+y)", 1., v2)
 testdiff("dot(v1, x+y)", v2, v3)
+testdiff("dot(v1, x+y)", 1., v2)
 
 #-
 testdiff("x+(-y)", 1., 2.)
 testdiff("x-y", 1., 2.)
+testdiff("dot(v1, x-y)", v2, v3)
 testdiff("dot(v1, x-y)", 1., v2)
 testdiff("dot(v1, -x)", v2)
 
@@ -34,11 +35,18 @@ testdiff("x*y", 3., 4.)
 testdiff("dot(v1, x'*y)", M, v2)
 testdiff("sum(x*y)", v1', M)
 testdiff("dot(v1, x*y)", M, v2)
+testdiff("dot(v1, x*y)", randn(), v2)
 
 #/
 testdiff("dot(v1, x\\y)", M, v2)
 testdiff("dot(v1, vec(x/y))", v2', M)
 testdiff("x+x*x*exp(x)", 2.)
+
+#.^
+testdiff("x .^ y", 2.5, 3.5)
+testdiff("x .^ y", 2.5, -3.5)
+testdiff("dot(v1, x .* y)", v2, v3)
+testdiff("dot(v1, x .^ y)", [1., 2.], [3., 4.])
 
 #'
 testdiff("first(y'*x*y)", [1. 2;3 4], [5.,6]'')

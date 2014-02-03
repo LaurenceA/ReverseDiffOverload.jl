@@ -37,43 +37,36 @@ diff(c::Call) = begin
     c.deps += 1
     diff(ones(size(value(c))), c)
 end
-
-macro d(f, ds...)
-    eval(parse("import Base.$f"))
-    esc(d(f, ds...))
+diff(d, c::Call) = begin
+    @assert c.deps>0
+    c.deps -= 1
+    c.dval += d
+    if c.deps == 0
+        dxs = diff_con(c, c.dval, map(value, c.args)...)
+        map(diff, dxs, c.args)
+    end
+    nothing
 end
-d(f::Symbol, dx) = 
+
+macro d1(f, ds...)
+    eval(parse("import Base.$f"))
+    esc(d1(f, ds...))
+end
+macro d2(f, ds...)
+    eval(parse("import Base.$f"))
+    esc(d2(f, ds...))
+end
+d1(f::Symbol, dx, tx=:Any) = 
     quote
         $f(x::Call) = Call($f, x)
-        diff{RT, XT}(d, c::Call{Base.function_name($f), RT, (XT,)}) = begin
-            @assert c.deps>0
-            c.deps -= 1
-            c.dval += d
-            if c.deps == 0
-                d = c.dval
-                cx = c.args[1]
-                x = value(cx)
-                diff($dx, cx)
-            end
-        end
+        diff_con(c::Call{Base.function_name($f)}, d, x::$tx) = ($dx,)
     end
-d(f::Symbol, dx, dy) = 
+d2(f::Symbol, dx, dy, tx=:Any, ty=:Any) = 
     quote
         $f(x::Call, y::Call) = Call($f, x, y)
         $f(x::Call, y) = Call($f, x, y)
         $f(x, y::Call) = Call($f, x, y)
-        diff{RT, XT, YT}(d, c::Call{Base.function_name($f), RT, (XT, YT)}) = begin
-            @assert c.deps>0
-            c.deps -= 1
-            c.dval += d
-            if c.deps == 0
-                d = c.dval
-                (cx, cy) = (c.args[1], c.args[2])
-                (x, y) = (value(cx), value(cy))
-                diff($dx, cx)
-                diff($dy, cy)
-            end
-        end
+        diff_con(c::Call{Base.function_name($f)}, d, x::$tx, y::$ty) = ($dx, $dy)
     end
 
 #Wrapper
@@ -86,28 +79,30 @@ end
 
 
 #Differentiation rules.
-@d(+, plus_diff(d, x), plus_diff(d, y))
-plus_diff(d::AbstractArray, x::Number) = sum(d)
-plus_diff{T}(d::T, x::T) = d
+@d2(+, d, d)
+@d2(+, sum(d), d, Number, AbstractArray)
+@d2(+, d, sum(d), AbstractArray, Number)
 
-@d(-, plus_diff(d, x), -plus_diff(d, y))
-@d(-, -d)
+@d2(-, d, -d)
+@d2(-, sum(d), -d, Number, AbstractArray)
+@d2(-, d, -sum(d), AbstractArray, Number)
+@d1(-, -d)
 
-@d(*, d*y', x'*d)
-@d(/, d/y', -(y'\x')*(d/y'))
-@d(\, -(x'\d)*(y'/x'), x'\d)
+@d2(*, d*y', x'*d)
+@d2(/, d/y', -(y'\x')*(d/y'))
+@d2(\, -(x'\d)*(y'/x'), x'\d)
 
-@d(dot, d*y, d*x)
-@d(det, d*det(x)*inv(x)')
-@d(trace, d*eye(size(x)...))
-@d(inv, -(x'\d)/x')
-@d(exp, d.*exp(x))
-@d(sin, d.*cos(x))
-@d(cos, -d.*sin(x))
-@d(ctranspose, ctranspose(d))
-@d(first, (tmp = zeros(size(x)); tmp[1] = d; tmp))
-@d(vec, reshape(d, size(x)...))
-@d(sum, d*ones(size(x)))
+@d2(dot, d*y, d*x)
+@d1(det, d*det(x)*inv(x)')
+@d1(trace, d*eye(size(x)...))
+@d1(inv, -(x'\d)/x')
+@d1(exp, d.*exp(x))
+@d1(sin, d.*cos(x))
+@d1(cos, -d.*sin(x))
+@d1(ctranspose, ctranspose(d))
+@d1(first, (tmp = zeros(size(x)); tmp[1] = d; tmp))
+@d1(vec, reshape(d, size(x)...))
+@d1(sum, d*ones(size(x)))
 
 #Testing code
 import Base.isapprox
