@@ -84,9 +84,8 @@ d(f::Symbol, dx, dy) =
 
 #Guess
 #@d(/, y'\d, x'*d)
-#Fails test
-@d(\, -d*y', x'\d)
-#Ok
+@d(/, d/y', -(y'\x)*(d/y'))
+@d(\, -(x'\d)*(y'/x'), x'\d)
 @d(exp, d.*exp(x))
 @d(sin, d.*cos(x))
 @d(cos, -d.*sin(x))
