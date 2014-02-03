@@ -6,8 +6,7 @@ isapprox(x::AbstractArray, y::AbstractArray) = all(map(isapprox, x, y))
 import Base.ones
 ones(arg::()) = 1.
 
-gentest(f, x, y) = begin
-    println((f, x, y))
+gentest(f::Function, x, y) = begin
     #ReverseDiff   
     cx = Call(x)
     cy = Call(y)
@@ -19,8 +18,7 @@ gentest(f, x, y) = begin
     @assert isapprox(cx.dval, fdx)
     @assert isapprox(cy.dval, fdy)
 end
-gentest(f, x) = begin
-    println((f, x))
+gentest(f::Function, x) = begin
     #ReverseDiff   
     cx = Call(x)
     cf = f(cx)
@@ -29,6 +27,14 @@ gentest(f, x) = begin
     (vf, devec) = vectorize(f, x)
     (fdx,) = devec(gradient(vf, vectorize(x)[1]))
     @assert isapprox(cx.dval, fdx)
+end
+gentest(f::String, x) = begin
+    println(f)
+    gentest(eval(parse("x -> $f")), x)
+end
+gentest(f::String, x, y) = begin
+    println(f)
+    gentest(eval(parse("(x, y) -> $f")), x, y)
 end
 
 vectorize(a::Float64) = 
@@ -54,26 +60,47 @@ vectorize(f::Function, args...) = begin
     (vargs, devec) = vectorize(args)
     (v::Vector{Float64} -> f(devec(v)...), devec)
 end
+const v1 = randn(2)
+const v2 = randn(2)
+const v3 = randn(2)
+const M  = randn(2, 2)
 
+#dot
+gentest("dot(v1, x)", v2)
+gentest("dot(x, y)", [1., 2.], [3., 4.])
 
-        
-gentest(a -> a+a*exp(a), 2.)
-gentest((a, b) -> first(b'*a*b), [1. 2;3 4], [5.,6]'')
-gentest(+, 1., 2.)
-gentest((a, b) -> dot([1.1, 1.3], a+b), ones(2), 2*ones(2))
-gentest(*, 3., 4.)
-gentest(dot, [1., 2.], [3., 4.])
-gentest((a, b) -> dot([1.1, 1.3], a*b), [1. 2;3 4], [5.,6])
-gentest(det, [1. 2;3 4])
-gentest(trace, [1. 2;3 4])
-gentest((a, b) -> dot([1.1, 1.3], a\b), [1. 2;3 4], [5.,6])
-gentest((a, b) -> dot([1.1, 1.3], vec(a/b)), [5. 6], [1. 2;3 4])
-gentest((a, b) -> dot([1.1, 1.3], a'*b), [1. 2;3 4], [5.,6])
-gentest(a -> det(inv(a)), [1. 2;3 4])
-gentest(sum, [1., 2., 3.])
-gentest(a -> dot([1.1, 2.1], vec(a)), [5. 6])
-gentest((a, b) -> sum(a*b), [5. 6], [1. 2;3 4])
-gentest(exp, 1.)
-gentest(a -> dot([1.1, 1.3], sin(a)), [0, pi/2.])
-gentest(a -> dot([1.1, 1.3], cos(a)), [0, pi/2.])
+#+
+gentest("x+y", 1., 2.)
+gentest("dot(v1, x+y)", 1., v2)
+gentest("dot(v1, x+y)", v2, v3)
+
+#-
+gentest("x+(-y)", 1., 2.)
+gentest("x-y", 1., 2.)
+gentest("dot(v1, x-y)", 1., v2)
+gentest("dot(v1, -x)", v2)
+
+#*
+gentest("x*y", 3., 4.)
+gentest("dot(v1, x'*y)", M, v2)
+gentest("sum(x*y)", v1', M)
+gentest("dot(v1, x*y)", M, v2)
+
+#/
+gentest("dot(v1, x\\y)", M, v2)
+gentest("dot(v1, vec(x/y))", v2', M)
+gentest("x+x*x*exp(x)", 2.)
+
+#'
+gentest("first(y'*x*y)", [1. 2;3 4], [5.,6]'')
+#matrix funcs
+gentest("det(x)", [1. 2;3 4])
+gentest("trace(x)", [1. 2;3 4])
+gentest("det(inv(x))", [1. 2;3 4])
+gentest("sum(x)", [1., 2., 3.])
+gentest("dot([1.1, 2.1], vec(x))", [5. 6])
+
+gentest("dot(v1, exp(x))", v2)
+gentest("dot(v1, sin(x))", v2)
+gentest("dot(v1, cos(x))", v2)
 

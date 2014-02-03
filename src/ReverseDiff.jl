@@ -44,7 +44,7 @@ end
 d(f::Symbol, dx) = 
     quote
         $f(x::Call) = Call($f, x)
-        diff(d, c::Call{Base.function_name($f)}) = begin
+        diff{RT, XT}(d, c::Call{Base.function_name($f), RT, (XT,)}) = begin
             @assert c.deps>0
             c.deps -= 1
             c.dval += d
@@ -61,7 +61,7 @@ d(f::Symbol, dx, dy) =
         $f(x::Call, y::Call) = Call($f, x, y)
         $f(x::Call, y) = Call($f, x, y)
         $f(x, y::Call) = Call($f, x, y)
-        diff(d, c::Call{Base.function_name($f)}) = begin
+        diff{RT, XT, YT}(d, c::Call{Base.function_name($f), RT, (XT, YT)}) = begin
             @assert c.deps>0
             c.deps -= 1
             c.dval += d
@@ -75,15 +75,21 @@ d(f::Symbol, dx, dy) =
         end
     end
 #Differentiation rules.
-@d(+, d, d)
-@d(-, d, -d)
+@d(+, plus_diff(d, x), plus_diff(d, y))
+plus_diff(d::AbstractArray, x::Number) = sum(d)
+plus_diff{T}(d::T, x::T) = d
+
+@d(-, plus_diff(d, x), -plus_diff(d, y))
+@d(-, -d)
+
 @d(*, d*y', x'*d)
+@d(/, d/y', -(y'\x')*(d/y'))
+@d(\, -(x'\d)*(y'/x'), x'\d)
+
 @d(dot, d*y, d*x)
 @d(det, d*det(x)*inv(x)')
 @d(trace, d*eye(size(x)...))
 @d(inv, -(x'\d)/x')
-@d(/, d/y', -(y'\x')*(d/y'))
-@d(\, -(x'\d)*(y'/x'), x'\d)
 @d(exp, d.*exp(x))
 @d(sin, d.*cos(x))
 @d(cos, -d.*sin(x))
