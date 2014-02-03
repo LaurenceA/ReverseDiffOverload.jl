@@ -19,8 +19,8 @@ which returns,
 
 Testing
 -------
-It is good practice to test that `reversediff` produces the correct results against a foolproof method, like finite differences.
-To do such a test on you function, simply call,
+It is good practice, at this early stage, to test that `reversediff` produces the correct results for your problem.
+To do such a test on your function, simply call,
 ```julia
 testdiff(g, args...)
 ```
@@ -28,14 +28,15 @@ for instance,
 ```julia
 testdiff(dot, [1., 2.], [2., 3.])
 ```
-An error will be generated if the finite difference and reverse mode differentiation results do not match.
+An error will be generated if the gold-standard finite difference our reverse mode differentiation results do not match.
 
 Troubleshooting
 ---------------
 Of course, things aren't always quite that simple.
 There are two common sources of bugs.
-- The type signature of the function you're trying to differentiate may be too constrained - the function needs to let values of type `Call` propagate through until they reach known functions.
-- You may be trying to use a function whose differential is not known.  You can provide define new differentials using, the macro `@d`, for instance, to redefine `*`, we would use,
+First, the type signature of the function you're trying to differentiate may be too constrained - the function needs to let values of type `Call` propagate through until they reach known functions.
+Second, you may be trying to use a function whose differential is not yet defined.  
+You can provide define new definitions using the macro `@d`, for instance, to redefine `*`, we would use,
 ```julia
 ReverseDiff.@d(*, d*y', x'*d)
 ```
