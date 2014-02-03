@@ -15,7 +15,7 @@ gentest(f, x, y) = quote
         cx = Call($x)
         cy = Call($y)
         cf = $f(cx, cy)
-        diff(ones(size(value(cf))), cf)
+        diff(cf)
         #Gradients
         (vf, devec) = vectorize($f, $x, $y)
         (fdx, fdy) = devec(gradient(vf, vectorize(($x, $y))[1]))
@@ -27,7 +27,7 @@ gentest(f, x) = quote
         #ReverseDiff   
         cx = Call($x)
         cf = $f(cx)
-        diff(ones(size(value(cf))), cf)
+        diff(cf)
         #Gradients
         (vf, devec) = vectorize($f, $x)
         (fdx,) = devec(gradient(vf, vectorize($x)[1]))
@@ -60,6 +60,7 @@ end
 
 
         
+@gentest(a -> a+a*a, 2.)
 @gentest(+, 1., 2.)
 @gentest((a, b) -> dot([1.1, 1.3], a+b), ones(2), 2*ones(2))
 @gentest(*, 3., 4.)

@@ -3,37 +3,39 @@ module ReverseDiff
 export Call, value, diff
 
 type Call{f, T, As <: Tuple}
-    computed_diff::Bool
+    deps::Int
     val::T
     dval::T
     args::As
-    Call(val) = new(false, val, zero(val))
-    Call(val, args) = new(false, val, zero(val), args)
+    Call(val) = new(0, val, zero(val))
+    Call(val, args) = new(0, val, zero(val), args)
 end
 Call(f::Function, args...) = begin
-    val = float(f(map(value, args)...))
+    val = float(f(map(init_value, args)...))
     Call{Base.function_name(f), typeof(val), typeof(args)}(val, args)
 end
+init_value(v::Call) = begin
+    v.deps += 1
+    v.val
+end
+init_value(x) = x
 Call(val) = begin
     fval = float(val)
     Call{Nothing, typeof(fval), ()}(fval)
-end
-
-for op in [+, -, *, /]
-    op(x::Call, y::Call) = Call(op, x, y)
-    op(x, y::Call) = Call(op, x, y)
-    op(x::Call, y) = Call(op, x, y)
 end
 
 value(v::Call) = v.val
 value(x) = x
 
 diff(dval, c::Call{Nothing}) = begin
-    @assert !c.computed_diff
-    c.computed_diff=true
-    c.dval = dval
+    c.dval += dval
 end
 diff(dval, val) = nothing
+
+diff(c::Call) = begin
+    c.deps += 1
+    diff(ones(size(value(c))), c)
+end
 
 macro d(f, ds...)
     eval(parse("import Base.$f"))
@@ -43,11 +45,14 @@ d(f::Symbol, dx) =
     quote
         $f(x::Call) = Call($f, x)
         diff(d, c::Call{Base.function_name($f)}) = begin
-            @assert !c.computed_diff
-            c.computed_diff=true
-            x = value(c.args[1])
-            diff($dx, c.args[1])
-            c.dval = d
+            @assert c.deps>0
+            cx = c.args[1]
+            x = value(cx)
+            cx.deps -= 1
+            if isa(cx, Call) && cx.deps == 0
+                diff($dx, cx)
+            end
+            c.dval += d
         end
     end
 d(f::Symbol, dx, dy) = 
@@ -56,13 +61,16 @@ d(f::Symbol, dx, dy) =
         $f(x::Call, y) = Call($f, x, y)
         $f(x, y::Call) = Call($f, x, y)
         diff(d, c::Call{Base.function_name($f)}) = begin
-            @assert !c.computed_diff
-            c.computed_diff=true
-            x = value(c.args[1])
-            y = value(c.args[2])
-            diff($dx, c.args[1])
-            diff($dy, c.args[2])
-            c.dval = d
+            @assert c.deps>0
+            c.deps -= 1
+            c.dval += d
+            if c.deps == 0
+                d = c.dval
+                (cx, cy) = (c.args[1], c.args[2])
+                (x, y) = (value(cx), value(cy))
+                diff($dx, cx)
+                diff($dy, cy)
+            end
         end
     end
 #Differentiation rules.
