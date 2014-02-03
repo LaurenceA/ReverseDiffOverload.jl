@@ -1,6 +1,6 @@
 module ReverseDiff
 
-export Call, value, diff
+export Call, value, diff, reversediff
 
 type Call{f, T, As <: Tuple}
     deps::Int
@@ -74,6 +74,16 @@ d(f::Symbol, dx, dy) =
             end
         end
     end
+
+#Wrapper
+reversediff(f::Function, args...) = begin
+    cargs = map(Call, args)
+    res = f(cargs...)
+    diff(res)
+    map(x -> x.dval, cargs)
+end
+
+
 #Differentiation rules.
 @d(+, plus_diff(d, x), plus_diff(d, y))
 plus_diff(d::AbstractArray, x::Number) = sum(d)
