@@ -46,13 +46,14 @@ d(f::Symbol, dx) =
         $f(x::Call) = Call($f, x)
         diff(d, c::Call{Base.function_name($f)}) = begin
             @assert c.deps>0
-            cx = c.args[1]
-            x = value(cx)
-            cx.deps -= 1
-            if isa(cx, Call) && cx.deps == 0
+            c.deps -= 1
+            c.dval += d
+            if c.deps == 0
+                d = c.dval
+                cx = c.args[1]
+                x = value(cx)
                 diff($dx, cx)
             end
-            c.dval += d
         end
     end
 d(f::Symbol, dx, dy) = 
