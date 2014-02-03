@@ -29,6 +29,7 @@ for instance,
 testdiff(dot, [1., 2.], [2., 3.])
 ```
 An error will be generated if the gold-standard finite difference our reverse mode differentiation results do not match.
+Note that testdiff is only defined for two-argument functions.
 
 Troubleshooting
 ---------------
@@ -37,9 +38,13 @@ There are three common sources of bugs.
 First, `reversediff` differentiates with respect to every argument, so every argument should have type ``Float64``, or ``Array{Float64}``. 
 Second, the type signature of the function you're trying to differentiate may be too constrained - the function needs to let values of type `Call` propagate through until they reach known functions.
 Third, you may be trying to use a function whose differential is not yet defined.  
-You can provide define new definitions using the macro `@d`, for instance, to redefine `*`, we would use,
+You can provide define new definitions using the macro `@d1`, for one argument functions, or `@d2`, for two argument functions, for instance, to redefine the differentials for `*`, we might use,
 ```julia
-ReverseDiff.@d(*, d*y', x'*d)
+ReverseDiff.@d2(*, d*y', x'*d)
 ```
 Where `x` is the first argument to the function, `y` is the second argument, and `d` is the differential of the objective with respect to the result of the function call.
-Note that `ReverseDiff.@d`, like `testdiff` is only implemented for one and two argument functions, though `reversediff` works with any number of arguments.
+Note that you can also annotate the types of `x` and `y`, using,
+```julia
+ReverseDiff.@d2(*, d*y', x'*d, AbstractArray, AbstractArray)
+```
+

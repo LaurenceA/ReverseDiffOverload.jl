@@ -49,11 +49,11 @@ diff(d, c::Call) = begin
 end
 
 macro d1(f, ds...)
-    eval(parse("import Base.$f"))
+    eval(parse("import Base.($f)"))
     esc(d1(f, ds...))
 end
 macro d2(f, ds...)
-    eval(parse("import Base.$f"))
+    eval(parse("import Base.($f)"))
     esc(d2(f, ds...))
 end
 d1(f::Symbol, dx, tx=:Any) = 
@@ -79,6 +79,7 @@ end
 
 
 #Differentiation rules.
+#Operators
 @d2(+, d, d)
 @d2(+, sum(d), d, Number, AbstractArray)
 @d2(+, d, sum(d), AbstractArray, Number)
@@ -89,8 +90,15 @@ end
 @d1(-, -d)
 
 @d2(*, d*y', x'*d)
+@d2(*, y*d, dot(x, d), AbstractArray, Number)
+@d2(*, dot(y, d), x*d, Number, AbstractArray)
+
+@d2(.*, d.*y, d.*x)
+
 @d2(/, d/y', -(y'\x')*(d/y'))
 @d2(\, -(x'\d)*(y'/x'), x'\d)
+
+@d2(.^, d.*y.*(x.^(y-1)), d.*log(x).*(x.^y))
 
 @d2(dot, d*y, d*x)
 @d1(det, d*det(x)*inv(x)')
