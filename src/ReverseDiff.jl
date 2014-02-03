@@ -81,10 +81,7 @@ d(f::Symbol, dx, dy) =
 @d(dot, d*y, d*x)
 @d(det, d*det(x)*inv(x)')
 @d(trace, d*eye(size(x)...))
-
-#Guess
-#@d(/, y'\d, x'*d)
-@d(/, d/y', -(y'\x)*(d/y'))
+@d(/, d/y', -(y'\x')*(d/y'))
 @d(\, -(x'\d)*(y'/x'), x'\d)
 @d(exp, d.*exp(x))
 @d(sin, d.*cos(x))
