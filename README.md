@@ -38,7 +38,7 @@ testdiff(g, args...)
 ```
 for instance,
 ```julia
-testdiff(f, randn(2,2), randn(2))
+testdiff(f, [1. 2; 3 4], [1., 2])
 ```
 An error will be generated if finite difference and our method give different results.
 Note that testdiff is only defined for one or two-argument functions.
