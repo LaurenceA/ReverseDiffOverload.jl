@@ -40,7 +40,7 @@ for instance,
 ```julia
 testdiff(f, randn(2,2), randn(2))
 ```
-An error will be generated if the gold-standard finite difference our reverse mode differentiation results do not match.
+An error will be generated if finite difference and our method give different results.
 Note that testdiff is only defined for one or two-argument functions.
 
 Troubleshooting
