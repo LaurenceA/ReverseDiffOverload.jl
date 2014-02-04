@@ -19,7 +19,7 @@ call,
 ```julia
 reversediff(f, randn(2,2), randn(2))
 ```
-which returns,
+which returns a tuple containing the differential of the return value with respect to every argument,
 ```julia
 (
 2x2 Array{Float64,2}:
