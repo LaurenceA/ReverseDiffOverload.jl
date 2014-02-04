@@ -8,7 +8,7 @@ Using reverse mode differentiation is very simple, just call,
 ```julia
 reversediff(function, args...)
 ```
-for instance, to differentiate `f` defined by,
+for instance, to differentiate `f`, defined by,
 ```julia
 f(a, b) = begin
     c = a*b
