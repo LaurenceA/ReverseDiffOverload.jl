@@ -1,11 +1,11 @@
-using ReverseDiff
+using ReverseDiffOverload
 
 const v1 = randn(2)
 const v2 = randn(2)
 const v3 = randn(2)
 const M  = randn(2, 2)
 
-import ReverseDiff.testdiff
+import ReverseDiffOverload.testdiff
 testdiff(f::String, x) = begin
     println(f)
     testdiff(eval(parse("x -> $f")), x)
