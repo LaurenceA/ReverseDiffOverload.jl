@@ -1,6 +1,6 @@
 # ReverseDiffOverload
 
-[![Build Status](https://travis-ci.org/LaurenceA/ReverseDiffOverload.jl.png)](https://travis-ci.org/LaurenceA/ReverseDiffOverload.jl)
+#[![Build Status](https://travis-ci.org/LaurenceA/ReverseDiffOverload.jl.png)](https://travis-ci.org/LaurenceA/ReverseDiffOverload.jl)
 
 Reverse mode differentiation for pre-defined functions.
 
