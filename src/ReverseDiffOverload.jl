@@ -104,13 +104,27 @@ end
 @d1(det, d*det(x)*inv(x)')
 @d1(trace, d*eye(size(x)...))
 @d1(inv, -(x'\d)/x')
-@d1(exp, d.*exp(x))
-@d1(sin, d.*cos(x))
-@d1(cos, -d.*sin(x))
+#@d1(exp, d.*exp(x))
+#@d1(sin, d.*cos(x))
+#@d1(cos, -d.*sin(x))
 @d1(ctranspose, ctranspose(d))
 @d1(first, (tmp = zeros(size(x)); tmp[1] = d; tmp))
 @d1(vec, reshape(d, size(x)...))
 @d1(sum, d*ones(size(x)))
+
+#Functions to pull and vectorize definitions from Calculus.jl
+vectorize_dict = {:* => :.*, :/ => :./, :\ => :.\, :^ => :.^, :xp => :d}
+vectorize_expr(exp::Expr) = Expr(exp.head, map(vectorize_expr, exp.args)...)
+vectorize_expr(sym::Symbol) = 
+    if haskey(vectorize_dict, sym)
+        vectorize_dict[sym]
+    else
+        sym
+    end
+vectorize_expr(any) = any
+for (funsym, exp) in Calculus.derivative_rules
+    @eval @d1($(funsym), $(vectorize_expr(exp)))
+end
 
 #Testing code
 import Base.isapprox
