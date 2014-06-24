@@ -98,6 +98,8 @@ end
 @d2(/, d/y', -(y'\x')*(d/y'))
 @d2(\, -(x'\d)*(y'/x'), x'\d)
 
+@d2(./, d./y, -d.*x./y./y)
+
 @d2(.^, d.*y.*(x.^(y-1)), d.*log(x).*(x.^y))
 
 @d2(dot, d*y, d*x)
@@ -152,7 +154,9 @@ testdiff(f::Function, x) = begin
     #Gradients
     (vf, devec) = vectorize(f, x)
     (fdx,) = devec(gradient(vf, vectorize(x)[1]))
-    @assert isapprox(cx.dval, fdx)
+    #maxdev = maximum(abs(fdx - cx.dval))
+    #@assert maxdev < 1E-7
+    isapprox(fdx, cx.dval)
 end
 
 vectorize(a::Float64) = 

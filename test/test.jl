@@ -61,3 +61,7 @@ testdiff("dot(v1, exp(x))", v2)
 testdiff("dot(v1, sin(x))", v2)
 testdiff("dot(v1, cos(x))", v2)
 
+testdiff("sum(exp(x.*v1))", v2)
+
+testdiff("sum(x./y)", v2, v3)
+
