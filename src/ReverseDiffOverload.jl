@@ -84,10 +84,18 @@ end
 @d2(+, sum(d), d, Number, AbstractArray)
 @d2(+, d, sum(d), AbstractArray, Number)
 
+@d2(.+, d, d)
+@d2(.+, sum(d), d, Number, AbstractArray)
+@d2(.+, d, sum(d), AbstractArray, Number)
+
 @d2(-, d, -d)
 @d2(-, sum(d), -d, Number, AbstractArray)
 @d2(-, d, -sum(d), AbstractArray, Number)
 @d1(-, -d)
+
+@d2(.-, d, -d)
+@d2(.-, sum(d), -d, Number, AbstractArray)
+@d2(.-, d, -sum(d), AbstractArray, Number)
 
 @d2(*, d*y', x'*d)
 @d2(*, y*d, dot(x, d), AbstractArray, Number)
