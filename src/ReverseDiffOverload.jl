@@ -74,7 +74,7 @@ reversediff(f::Function, args...) = begin
     cargs = map(Call, args)
     res = f(cargs...)
     diff(res)
-    map(x -> x.dval, cargs)
+    (res.val, map(x -> x.dval, cargs))
 end
 
 
@@ -159,11 +159,11 @@ testdiff(f::Function, x) = begin
     isapprox(fdx, cx.dval)
 end
 
-vectorize(a::Float64) = 
+vectorize(a::Real) = 
     (Float64[a], a::Vector{Float64} -> a[1])
-vectorize(a::Vector{Float64}) = 
+vectorize(a::Vector) = 
     (a, identity)
-vectorize(a::Matrix{Float64}) = 
+vectorize(a::Matrix) = 
     (reshape(a, size(a, 1)*size(a, 2)), v -> reshape(v, size(a, 1), size(a, 2)))
 vectorize(args::Tuple) = begin
     vdvs = map(vectorize, args)

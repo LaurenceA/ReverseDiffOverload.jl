@@ -19,9 +19,9 @@ at, `[1. 2; 3 4], [1., 2]`, call,
 ```julia
 reversediff(f, [1. 2; 3 4], [1., 2])
 ```
-which returns a tuple containing the differential of the return value with respect to every argument,
+which returns a tuple containing the return value, and the differential of the return value with respect to every argument,
 ```julia
-(
+(173.0,(
 2x2 Array{Float64,2}:
  11.0  22.0
  24.0  48.0,
