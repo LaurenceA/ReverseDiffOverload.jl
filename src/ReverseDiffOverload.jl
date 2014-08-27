@@ -1,7 +1,7 @@
 module ReverseDiffOverload
 using Calculus
 
-export reversediff, testdiff
+export reversediff, testdiff, rectlin
 
 type Call{f, T, As <: Tuple}
     deps::Int
@@ -135,6 +135,9 @@ end
 @d1(first, (tmp = zeros(size(x)); tmp[1] = d; tmp))
 @d1(vec, reshape(d, size(x)...))
 @d1(sum, d*ones(size(x)))
+
+rectlin(x) = max(0, x)
+@d1(rectlin, d.*(x.>0))
 
 #Testing code
 import Base.isapprox
