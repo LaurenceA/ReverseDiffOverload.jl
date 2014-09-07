@@ -157,7 +157,7 @@ testdiff(f::Function, args...) = begin
     #Finite gradients
     (vf, devec) = vectorize(f, args...)
     dargs_fg = devec(gradient(vf, vectorize(args)[1]))
-    @assert all(map(isapprox, dargs_rdo, dargs_fg))
+    @assert all(map((x, y) -> isapprox(x, y; rtol=1E-6, atol=1E-10), dargs_rdo, dargs_fg))
 end
 
 vectorize(a::Real) = 
