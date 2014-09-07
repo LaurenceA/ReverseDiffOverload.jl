@@ -1,7 +1,7 @@
 module ReverseDiffOverload
 using Calculus
 
-export reversediff, testdiff, rectlin
+export reversediff, testdiff, rectlin, loggamma
 
 type Call{f, T, As <: Tuple}
     deps::Int
@@ -127,7 +127,7 @@ end
 @d2(dot, d*y, d*x)
 @d1(det, d*det(x)*inv(x)')
 @d1(trace, d*eye(size(x)...))
-@d1(inv, (println("Here!"); -(x'\d)/x'))
+@d1(inv, -(x'\d)/x')
 #@d1(exp, d.*exp(x))
 #@d1(sin, d.*cos(x))
 #@d1(cos, -d.*sin(x))
@@ -136,8 +136,11 @@ end
 @d1(vec, reshape(d, size(x)...))
 @d1(sum, d*ones(size(x)))
 
+#Special functions
 rectlin(x) = max(0, x)
 @d1(rectlin, d.*(x.>0))
+loggamma(x) = log(gamma(x))
+@d1(loggamma, d.*digamma(x))
 
 #Testing code
 import Base.isapprox
