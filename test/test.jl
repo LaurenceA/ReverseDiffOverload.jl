@@ -66,4 +66,5 @@ testdiff("sum(exp(x.*v1))", v2)
 testdiff("sum(x./y)", v2, v3)
 
 testdiff("sum(rectlin(M*x))", v1)
-testdiff("loggamma(x)", 3)
+testdiff("logΓ(x)", 3)
+testdiff("logΓ(x)", 3)

@@ -1,7 +1,7 @@
 module ReverseDiffOverload
 using Calculus
 
-export reversediff, testdiff, rectlin, loggamma
+export reversediff, testdiff, rectlin, logΓ
 
 type Call{f, T, As <: Tuple}
     deps::Int
@@ -139,8 +139,8 @@ end
 #Special functions
 rectlin(x) = max(0, x)
 @d1(rectlin, d.*(x.>0))
-loggamma(x) = log(gamma(x))
-@d1(loggamma, d.*digamma(x))
+logΓ(x) = log(gamma(x))
+@d1(logΓ, d.*digamma(x))
 
 #Testing code
 import Base.isapprox
@@ -148,27 +148,16 @@ isapprox(x::AbstractArray, y::AbstractArray) = all(map(isapprox, x, y))
 import Base.ones
 ones(arg::()) = 1.
 
-testdiff(f::Function, x, y) = begin
-    #ReverseDiff   
-    cx = Call(x)
-    cy = Call(y)
-    cf = f(cx, cy)
-    diff(cf)
-    #Gradients
-    (vf, devec) = vectorize(f, x, y)
-    (fdx, fdy) = devec(gradient(vf, vectorize((x, y))[1]))
-    @assert isapprox(cx.dval, fdx)
-    @assert isapprox(cy.dval, fdy)
-end
-testdiff(f::Function, x) = begin
-    #ReverseDiff   
-    cx = Call(x)
-    cf = f(cx)
-    diff(cf)
-    #Gradients
-    (vf, devec) = vectorize(f, x)
-    (fdx,) = devec(gradient(vf, vectorize(x)[1]))
-    @assert isapprox(fdx, cx.dval)
+testdiff(f::Function, args...) = begin
+    #Reverse diff
+    calls = map(Call, args)
+    res   = f(calls...)
+    diff(res)
+    dargs_rdo = map(x -> x.dval, calls)
+    #Finite gradients
+    (vf, devec) = vectorize(f, args...)
+    dargs_fg = devec(gradient(vf, vectorize(args)[1]))
+    @assert all(map(isapprox, dargs_rdo, dargs_fg))
 end
 
 vectorize(a::Real) = 
