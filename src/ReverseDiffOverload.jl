@@ -144,7 +144,8 @@ logΓ(x) = log(gamma(x))
 
 #Testing code
 import Base.isapprox
-isapprox(x::AbstractArray, y::AbstractArray) = all(map(isapprox, x, y))
+isapprox(x::AbstractArray, y::AbstractArray; rtol=1E-6, atol=1E-10) = 
+    all(map((x, y) -> isapprox(x, y; rtol=rtol, atol=atol), x, y))
 import Base.ones
 ones(arg::()) = 1.
 
