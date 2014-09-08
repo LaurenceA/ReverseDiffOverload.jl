@@ -135,6 +135,10 @@ end
 @d1(first, (tmp = zeros(size(x)); tmp[1] = d; tmp))
 @d1(vec, reshape(d, size(x)...))
 @d1(sum, d*ones(size(x)))
+#Define special methods for getindex, to avoid ambiguities.
+#@d2(getindex, (res=zeros(size(x)...); res[y] = d; res), 0.)
+getindex(x::Call, y::Int) = Call(getindex, x, y)
+diff_con(c::Call{:getindex}, d, x::Vector, y::Int) = ((res=zeros(size(x)...); res[y] = d; res), 0.)
 
 #Special functions
 rectlin(x) = max(0, x)
