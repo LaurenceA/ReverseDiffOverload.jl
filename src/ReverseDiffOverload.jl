@@ -107,6 +107,8 @@ end
 @d2(-, d, -sum(d), AbstractArray, Number)
 @d1(-, -d)
 
+@d2(sum, broadcast(*, ones(size(x)...), d), 0.)
+
 @d2(.-, d, -d)
 @d2(.-, sum(d), -d, Number, AbstractArray)
 @d2(.-, d, -sum(d), AbstractArray, Number)
