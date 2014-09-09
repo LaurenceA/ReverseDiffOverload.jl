@@ -107,7 +107,9 @@ end
 @d2(-, d, -sum(d), AbstractArray, Number)
 @d1(-, -d)
 
-@d2(sum, broadcast(*, ones(size(x)...), d), 0.)
+import Base.sum
+sum(x::Call, y::Int) = Call(sum, x, y)
+diff_con(c::Call{:sum}, d, x::AbstractArray, y::Int) = (broadcast(*, ones(size(x)...), d), 0.)
 
 @d2(.-, d, -d)
 @d2(.-, sum(d), -d, Number, AbstractArray)
@@ -137,8 +139,8 @@ end
 @d1(first, (tmp = zeros(size(x)); tmp[1] = d; tmp))
 @d1(vec, reshape(d, size(x)...))
 @d1(sum, d*ones(size(x)))
-#Define special methods for getindex, to avoid ambiguities.
-#@d2(getindex, (res=zeros(size(x)...); res[y] = d; res), 0.)
+
+import Base.getindex
 getindex(x::Call, y::Int) = Call(getindex, x, y)
 diff_con(c::Call{:getindex}, d, x::Vector, y::Int) = ((res=zeros(size(x)...); res[y] = d; res), 0.)
 
